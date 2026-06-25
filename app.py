@@ -1,16 +1,18 @@
 import sys
 import os
-import tempfile  
+import tempfile
 
 _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
 import streamlit as st
-# import data
-# import chunking
-# import embeddings
+
+# Mở khóa các module đã import
 from src.pdf_prepare import DocumentLoader
+from src.chunking import TextChunker         # Xử lý chia nhỏ văn bản
+from src.embeddings import OllamaRAGSystem   # Xử lý RAG và Vector Database
+
 
 def _set_page_config():
     st.set_page_config(
@@ -360,113 +362,108 @@ def _set_page_config():
         """,
         unsafe_allow_html=True)
 
+
 def _initialize_session_state():
-    for k,v in {"collection": None, "pdf_name": "", "chat_history": []}.items():
-        st.session_state.setdefault(k,v)
+    # Khởi tạo các giá trị session_state cơ bản
+    for k, v in {"collection": None, "pdf_name": "", "chat_history": []}.items():
+        st.session_state.setdefault(k, v)
 
 def _render_sidebar():
     with st.sidebar:
         st.title("Cấu hình hệ thống")
         st.caption("Ứng dụng chatbot hỏi đáp tài liệu PDF")
         st.markdown("---")
-
-        llm_model = st.selectbox(
-            "Chọn LLM Model:",
-            options = ["vicuna:7b-v1.5-q5_1"],
-            index=0
-        )
-
-        k_documents = st.slider(
-            "Số lượng Context (k):",
-            min_value = 1,
-            max_value = 10,
-            help = "Số lượng đoạn văn bản liên quan nhất được lấy từ ChromaDB để đưa vào Prompt"
-        )
+        
+        # Gắn trực tiếp biến vào session_state thông qua tham số `key`
+        st.selectbox("Chọn LLM Model:", options=["vicuna:7b-v1.5-q5_1"], index=0, key="llm_model")
+        
+        st.slider("Số lượng Context (k):", min_value=1, max_value=10, value=3, key="k_docs",
+                  help="Số lượng đoạn văn bản liên quan nhất được lấy từ ChromaDB để đưa vào Prompt")
+        
         st.markdown("---")
-
-        st.markdown(
-            """
-            <div class="custom-box">
-                <div class="box-title">💡 Trạng thái hệ thống</div>
-                <div class="box-content">
-                    Mọi thứ đang hoạt động ổn định. Bộ nhớ đã dùng <b>42%</b>.
-                </div>
-            </div>
-            """, 
-            unsafe_allow_html=True
-        )
+        st.markdown("💡 Trạng thái hệ thống\nMọi thứ đang hoạt động ổn định.", unsafe_allow_html=True)
 
 def _homepage():
     st.title("Vietnamese Q&A RAG System")
     st.caption("Ứng dụng thông minh hỏi đáp tài liệu bằng tiếng Việt")
-
-    col_chatbot, col_upload = st.columns([3,1])
-
+    
+    col_chatbot, col_upload = st.columns([3, 1])
+    
+    # ================= CỘT CHATBOT ================= #
     with col_chatbot:
-
-        prompt = st.chat_input("Ask")
-        if prompt:
-            st.session_state.chat_history.append(
-                {"role": "user", "content": prompt})
-            
+        # Hiển thị lại lịch sử chat trước đó
         for m in st.session_state.chat_history:
             with st.chat_message(m["role"]):
                 st.write(m["content"])
-    
+                
+        prompt = st.chat_input("Hỏi nội dung trong tài liệu...")
+        if prompt:
+            # 1. Thêm câu hỏi của user vào giao diện và lịch sử
+            st.session_state.chat_history.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.write(prompt)
+                
+            # 2. Tạo câu trả lời từ hệ thống RAG
+            with st.chat_message("assistant"):
+                if st.session_state.collection is None:
+                    st.warning("Vui lòng tải tài liệu lên ở cột bên phải trước khi hỏi đáp!")
+                else:
+                    with st.spinner("Đang suy nghĩ..."):
+                        try:
+                            rag = st.session_state.collection
+                            # Gọi hàm answer từ embeddings.py để truy xuất RAG
+                            answer = rag.answer(
+                                question=prompt, 
+                                k=st.session_state.k_docs # Truyền tham số K từ cấu hình sidebar
+                            )
+                            st.write(answer)
+                            st.session_state.chat_history.append({"role": "assistant", "content": answer})
+                        except Exception as e:
+                            st.error(f"Lỗi khi truy xuất câu trả lời: {e}")
+
+    # ================= CỘT UPLOAD FILE ================= #
     with col_upload:
-        st.markdown(
-            "Tải file tài liệu lên để hỏi đáp"
-        )
-        file_uploaded = st.file_uploader(
-            "Add file",
-            type = ["pdf","html", "txt"]
-        )
+        st.markdown("Tải file tài liệu lên để hỏi đáp")
+        file_uploaded = st.file_uploader("Add file", type=["pdf", "html", "txt"])
         
         if file_uploaded:
-            file_extension = os.path.splitext(file_uploaded.name)[1]
+            file_extension = os.path.splitext(file_uploaded.name)[1].lower()
             
-            # Bước 2: Tạo một file tạm thời trên đĩa cứng
+            # Tạo file tạm thời trên đĩa
             with tempfile.NamedTemporaryFile(delete=False, suffix=file_extension) as temp_file:
-                # Ghi dữ liệu nhị phân từ Streamlit vào file tạm này
                 temp_file.write(file_uploaded.read())
-                # Đây chính là ĐƯỜNG DẪN THỰC TẾ trên máy tính của bạn
-                temp_file_path = temp_file.name 
-            
-            # Bước 3: Đưa đường dẫn vào module xử lý dữ liệu
+                temp_file_path = temp_file.name
+
             try:
-                st.info(f"🔄 Đang xử lý: {file_uploaded.name}...")
-                
-                # Khởi tạo loader của bạn
-                load_document = DocumentLoader()
-                
-                # Sửa hàm .load() của bạn để nhận vào đường dẫn `temp_file_path` thay vì file binary
-                documents = load_document.load(temp_file_path)
-                
-                # Kế tiếp: Gọi các module chunking và embedding tiếp theo tại đây
-                # (Ví dụ minh họa cấu trúc dòng chảy dữ liệu)
-                # ----------------------------------------------------
-                # from src.chunking import ChunkProcessor
-                # from src.embeddings import EmbeddingEngine
-                #
-                # chunks = ChunkProcessor.split(documents)
-                # st.session_state.collection = EmbeddingEngine.save_to_chromadb(chunks)
-                # ----------------------------------------------------
-                
-                st.success("✅ Tài liệu đã được nạp và phân tích thành công!")
-                st.session_state.pdf_name = file_uploaded.name
+                with st.spinner(f"🔄 Đang xử lý: {file_uploaded.name}..."):
+                    # Bước 1: Nạp tài liệu
+                    load_document = DocumentLoader()
+                    document = load_document.load(temp_file_path)
+                    
+                    # Bước 2: Cắt Chunking
+                    chunker = TextChunker(chunk_size=512, chunk_overlap=50)
+                    chunks = chunker.chunk(document)
+                    
+                    # Bước 3: Tạo Vector Embeddings và lưu vào ChromaDB
+                    rag_system = OllamaRAGSystem(llm_model=st.session_state.llm_model)
+                    rag_system.add_chunks(chunks)
+                    
+                    # Bước 4: Lưu đối tượng RAG vào session state
+                    st.session_state.collection = rag_system
+                    st.session_state.pdf_name = file_uploaded.name
+                    
+                st.success(f"✅ Nạp thành công tài liệu và tách thành {len(chunks)} chunks!")
 
             except Exception as e:
                 st.error(f"❌ Có lỗi xảy ra khi xử lý file: {e}")
                 
             finally:
-                # Bước 4: Xóa file tạm sau khi đã xử lý xong để giải phóng bộ nhớ
+                # Xóa file tạm
                 if os.path.exists(temp_file_path):
                     os.remove(temp_file_path)
 
-
-
 def main():
-    _set_page_config()
+    _set_page_config() # Giữ nguyên hàm này từ mã hiện tại của bạn
     _initialize_session_state()
     _render_sidebar()
     _homepage()

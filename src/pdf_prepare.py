@@ -4,7 +4,6 @@ from src.data import Document, DocumentType
 from typing import List
 
 class PDFLoader:
-    """Bộ nạp dữ liệu chuyên xử lý file PDF bằng pypdf"""
     def __init__(self, file_path: str):
         self.file_path = file_path
 
@@ -12,21 +11,16 @@ class PDFLoader:
         try:
             from pypdf import PdfReader
         except ImportError as e:
-            raise ImportError(
-                "pypdf chưa được cài — chạy: pip install PyMuPDF"
-            ) from e
+            raise ImportError("pypdf chưa được cài — chạy: pip install pypdf") from e
         
         texts = []
         reader = PdfReader(self.file_path)
         for page in reader.pages:
-            text = page.econtenttext()
+            text = page.extract_text() # <-- Đã sửa lỗi tại đây
             texts.append(text)
-        
-        content = "\n\n".join(texts)
-        return content
+        return "\n\n".join(texts)
 
 class TEXTLoader:
-    """Bộ nạp dữ liệu chuyên xử lý file văn bản thuần túy"""
     def __init__(self, file_path: str):
         self.file_path = file_path
 
@@ -41,28 +35,19 @@ SUPPORTED_LOADERS = {
 }
 
 class DocumentLoader():
-    """
-    Tải tài liệu từ file và trả về Document object.
-    Hỗ trợ: PDF (pypdf), TXT, Markdown.
-    """
     def __init__(self):
-        """Khởi tạo DocumentLoader."""
         pass
 
     def load(self, file_path: str) -> Document:
-        """Tải file, tự động chọn loader phù hợp theo extension"""
         if not self.supports(file_path):
             ext = self._get_extension(file_path)
             raise ValueError(f"Định dạng file {ext} không được hỗ trợ")
-
+            
         ext = self._get_extension(file_path)
         loader_class = SUPPORTED_LOADERS.get(ext)
-        if loader_class is None:
-            raise ValueError(f"Không tìm thấy loader cho extension {ext}")
-
         loader_instance = loader_class(file_path)
         content = loader_instance.load()
-
+        
         doc_typemap = {
             ".txt": DocumentType.TXT,
             ".md": DocumentType.MARKDOWN,
@@ -70,7 +55,7 @@ class DocumentLoader():
             ".html": DocumentType.HTML,
         }
         doc_type = doc_typemap.get(ext, DocumentType.TXT)
-
+        
         return Document(
             doc_id=self._generate_doc_id(file_path),
             file_path=file_path,
@@ -79,7 +64,6 @@ class DocumentLoader():
         )
 
     def load_directory(self, dir_path: str) -> List[Document]:
-        """Tải tất cả tài liệu hỗ trợ trong một thư mục"""
         documents: List[Document] = []
         for root, _, files in os.walk(dir_path):
             for name in files:
@@ -89,15 +73,12 @@ class DocumentLoader():
         return documents
 
     def supports(self, file_path: str) -> bool:
-        """Kiểm tra có loader cho loại file này không"""
         ext = self._get_extension(file_path)
         return ext in SUPPORTED_LOADERS
 
     def _get_extension(self, file_path: str) -> str:
-        """Trích xuất extension từ đường dẫn"""
         return os.path.splitext(file_path)[1].lower()
 
     def _generate_doc_id(self, file_path: str) -> str:
-        """Tạo doc_id duy nhất (hash của đường dẫn tuyệt đối)"""
         abs_path = os.path.abspath(file_path)
         return hashlib.sha256(abs_path.encode()).hexdigest()
