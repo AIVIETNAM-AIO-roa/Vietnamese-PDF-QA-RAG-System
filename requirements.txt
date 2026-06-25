@@ -1,0 +1,6 @@
+streamlit
+pypdf
+FlagEmbedding
+sentence-transformers
+ollama
+chromadbdb
