@@ -5,7 +5,7 @@ streamlit
 ollama
 chromadb
 
-# Xử lý đọc file PDF
+#Xử lý đọc file PDF
 pypdf
 
 # Tối ưu hiệu suất cho Streamlit (tuỳ chọn nhưng được khuyến nghị)
