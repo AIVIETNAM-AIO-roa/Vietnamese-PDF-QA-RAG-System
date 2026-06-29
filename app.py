@@ -1,9 +1,6 @@
 import os
 import sys
 import tempfile
-from dotenv import load_dotenv
-
-load_dotenv()
 
 _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _PROJECT_ROOT not in sys.path:
@@ -153,6 +150,17 @@ def _homepage():
     with col_upload:
         st.markdown("Tải file tài liệu lên để hỏi đáp")
         file_uploaded = st.file_uploader("Add file", type=["pdf", "html", "txt", "md"])
+
+        if st.session_state.pdf_name and st.session_state.extracted_text:
+            with st.expander("File đang sử dụng"):
+                preview_text = st.session_state.extracted_text[:1000]
+                st.text_area("Nội dung trích xuất", value=preview_text, height=300)
+                if len(st.session_state.extracted_text) > 1000:
+                    st.info("Nội dung dài hơn 1000 ký tự, chỉ đang hiển thị phần đầu để dễ xem.")
+        elif not st.session_state.extracted_text:
+            with st.expander("File đang sử dụng"):
+                st.write("Chưa tải file/ nội dung.")
+        # st.rerun()
         if file_uploaded:
             if st.session_state.pdf_name != file_uploaded.name:
                 st.session_state.rag_system.collection = None
@@ -185,25 +193,8 @@ def _homepage():
                 finally:
                     if os.path.exists(temp_file_path):
                         os.remove(temp_file_path)
-                        
-            if st.session_state.pdf_name:
-                with st.expander("File đang sử dụng"):
-                    st.markdown(
-                        f"""
-                        <div class="section-card">
-                            <div class="section-title">File đang sử dụng</div>
-                            <div class="section-text">Tên file: <b>{st.session_state.pdf_name}</b></div>
-                        </div>
-                        """, unsafe_allow_html=True
-                    )
-                    if st.session_state.extracted_text:
-                        preview_text = st.session_state.extracted_text[:1000]
-                        st.text_area("Nội dung trích xuất", value=preview_text, height=300)
-                        if len(st.session_state.extracted_text) > 1000:
-                            st.info("Nội dung dài hơn 1000 ký tự, chỉ đang hiển thị phần đầu để dễ xem.")
-                    else:
-                        st.write("Chưa có nội dung được trích xuất.")
             st.rerun()
+               
 
 def main():
     _set_page_config()
