@@ -10,6 +10,6 @@ watchdog
 
 dotenv
 
-openai
+google-genai
 
 typing-extensions
