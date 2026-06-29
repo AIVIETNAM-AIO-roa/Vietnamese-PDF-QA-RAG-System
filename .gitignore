@@ -11,3 +11,6 @@ chroma_db/
 .vscode/
 __pycache__/
 *.pyc
+
+.streamlit/secrets.toml
+secrets.toml

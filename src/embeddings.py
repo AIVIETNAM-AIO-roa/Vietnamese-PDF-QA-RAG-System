@@ -2,6 +2,7 @@ import os
 import chromadb
 from typing import List
 from src.models import Chunk
+import streamlit as st 
 
 from google import genai
 from google.genai import types
@@ -29,7 +30,7 @@ Nhiệm vụ của bạn là dựa vào phần [NGỮ CẢNH] được cung cấ
     def __init__(self, collection_name: str = "rag", llm_model: str = "gemini-2.5-flash", top_k: int = 3, api_key: str = None):
         """Construction khởi tạo RAGSystem"""
         # Lấy API Key GEMINI
-        self.api_key = api_key or os.getenv("GEMINI_API_KEY")
+        self.api_key = api_key or st.secrets["GEMINI_API_KEY"]
         if not self.api_key:
             raise ValueError("Không tìm thấy GEMINI_API_KEY. Vui lòng cấu hình API Key!")
         
