@@ -62,7 +62,7 @@ def _render_sidebar():
         
         st.markdown("---")
         with st.container(border=True):
-            user_model = st.selectbox("Chọn LLM Model:", options=["vicuna:7b-v1.5-q5_1"], index=0, key="llm_model")
+            user_model = st.selectbox("Chọn LLM Model:", options=["gemini-2.5-flash"], index=0, key="llm_model")
             st.session_state.rag_system.llm_model = user_model
             user_topk = st.slider("Số lượng Context (k):", min_value=1, max_value=10, value=3, key="k_docs",
                                   help="Số lượng đoạn văn bản liên quan nhất được lấy từ ChromaDB để đưa vào Prompt")

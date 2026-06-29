@@ -37,7 +37,7 @@ Nhiệm vụ của bạn là dựa vào phần [NGỮ CẢNH] được cung cấ
         self.collection = self.chroma_client.get_or_create_collection(collection_name)
         
         # Các cấu hình
-        self.llm_model = LLM_MODEL or llm_model
+        self.llm_model = llm_model or LLM_MODEL
         self.embedding_model = EMBEDDING_MODEL 
         self.top_k = top_k
 
