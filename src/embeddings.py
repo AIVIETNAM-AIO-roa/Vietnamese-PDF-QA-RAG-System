@@ -72,7 +72,7 @@ Nhiệm vụ của bạn là dựa vào phần [NGỮ CẢNH] được cung cấ
  
         ids        = [str(i) for i in range(len(chunks))]
         texts      = [chunk.content for chunk in chunks]
-        embeddings = self._embed_documents(texts, batch_size=100)
+        embeddings = self._embed_documents(texts, batch_size=50)
  
         if not embeddings:
             raise RuntimeError("Embed thất bại, không thể nạp vào ChromaDB.")
