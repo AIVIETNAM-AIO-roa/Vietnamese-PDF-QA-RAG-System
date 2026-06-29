@@ -41,7 +41,6 @@ Nhiệm vụ của bạn là dựa vào phần [NGỮ CẢNH] được cung cấ
         self.embedding_model = EMBEDDING_MODEL 
         self.top_k = top_k
 
-
     def _embed_documents(self, chunks: list[str], batch_size: int = 50) -> list:
         """Embed theo từng batch"""
         all_embeddings = []
@@ -49,7 +48,7 @@ Nhiệm vụ của bạn là dựa vào phần [NGỮ CẢNH] được cung cấ
         for i in range(0, len(chunks), batch_size):
             batch = chunks[i : i + batch_size]
             response = self.gemini_client.models.embed_content(
-                model=EMBEDDING_MODEL,
+                model=self.embedding_model,
                 contents=batch,
                 config=types.EmbedContentConfig(task_type="RETRIEVAL_DOCUMENT"),
             )
@@ -60,14 +59,13 @@ Nhiệm vụ của bạn là dựa vào phần [NGỮ CẢNH] được cung cấ
     def _embed_query(self, query: str) -> list[float]:
         """Embed query"""
         response = self.gemini_client.models.embed_content(
-            model=EMBEDDING_MODEL,
+            model=self.embedding_model,
             contents=[query],
             config=types.EmbedContentConfig(task_type="RETRIEVAL_QUERY"),
         )
         return response.embeddings[0].values
     
     def add_chunks(self, chunks: List[Chunk]):
-        """Dùng ChromaDB lưu trữ vector database"""
         """Embed và lưu chunks vào ChromaDB."""
         if not chunks:
             raise ValueError("Danh sách chunks trống.")

@@ -12,6 +12,10 @@ from src.loader import DocumentLoader
 from src.chunking import TextChunker         
 from src.embeddings import RAGSystem   
 
+@st.cache_resource
+def get_rag():
+    return RAGSystem()
+
 def _set_page_config():
     st.set_page_config(
         page_title="Notebook",
@@ -25,7 +29,7 @@ def _initialize_session_state():
     for k, v in {"extracted_text": "", "pdf_name": "", "chat_history": []}.items():
         st.session_state.setdefault(k, v)
     if "rag_system" not in st.session_state:
-        st.session_state.rag_system = RAGSystem()
+        st.session_state.rag_system = get_rag()
 
 def _render_sidebar():
     with st.sidebar:
@@ -100,7 +104,7 @@ def _render_sidebar():
             f"""
             <div style="font-size: 13px; color: #4a5568; line-height: 1.6;">
                 ● <b>LLM Model:</b> <code style="color: #3182ce;">{st.session_state.rag_system.llm_model}</code><br>
-                ● <b>Embedding Engine:</b> <code style="color: #3182ce;">bge-m3</code><br>
+                ● <b>Embedding Engine:</b> <code style="color: #3182ce;">{st.session_state.rag_system.embedding_model}</code><br>
                 ● <b>Vector Database:</b> <code style="color: #3182ce;">ChromaDB (In-Memory)</code><br>
                 ● <b>Top-k result:</b> <code style="color: #3182ce;">{st.session_state.rag_system.top_k}</code><br>
                 ● <b>Trạng thái:</b> <span style="color: {status_color}; font-weight: bold;">● {status_text}</span><br>
