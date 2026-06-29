@@ -1,9 +1,8 @@
-# Các file chứa biến môi trường nhạy cảm (Bảo mật)
 .env
 .env.local
 .env.*.local
 
-# Thư mục lưu trữ cơ sở dữ liệu vector ChromaDB cục bộ (nếu có sinh ra)
+# Thư mục lưu trữ cơ sở dữ liệu vector ChromaDB cục bộ 
 chroma_db/
 .chroma/
 
