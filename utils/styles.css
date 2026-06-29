@@ -1,0 +1,167 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,900&display=swap');
+
+header { visibility: hidden; }
+
+.main .block-container {
+    max-width: 100%;
+    padding: 0 !important;
+}
+
+
+/* ===== SIDEBAR ===== */
+[data-testid="stSidebar"] {
+    background: #f8f9fa;
+    border-right: 1px solid #e8eaed;
+    padding: 0;
+}
+
+[data-testid="stSidebar"] .block-container {
+    padding: 24px 16px !important;
+}
+
+/* Tiêu đề Cấu hình hiện tại */
+[data-testid="stSidebar"] h3 {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #1a1a1a !important;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 16px !important;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Các dòng config — st.write */
+[data-testid="stSidebar"] p {
+    font-size: 13px;
+    color: #444;
+    margin-bottom: 6px !important;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+[data-testid="stSidebar"] code {
+    background: #e3f2fd;
+    color: #1a3a6b;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+}
+
+/* Title */
+.title-sidebar{
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+
+    background:linear-gradient(135deg, #142033 0%, #2e5b9a 60%, #4a90e2 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+/* STEP GUIDE và PIPELINE*/
+.guide-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+    margin-bottom: 16px;
+}
+.guide-step-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+.guide-step-number {
+    background: #1a3a6b; 
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+}
+.guide-step-text {
+    font-size: 13.5px;
+    color: #4a5568;
+    line-height: 1.5;
+}
+.guide-step-action {
+    color: #1a3a6b;
+    font-weight: 600;
+}
+
+.custom-box {
+    background-color: #ffffff;
+    border: 1px solid #eaeaea;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hộp bọc ngoài lớn */
+.system-intro-box {
+    background: linear-gradient(135deg, #1a3a6b 0%, #2563eb 100%) !important;
+    border-radius: 12px !important;
+    padding: 16px !important;
+    margin-bottom: 16px !important;
+    color: white !important;
+}
+
+/* Tiêu đề của hệ thống */
+.system-intro-title {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    margin-bottom: 6px !important;
+}
+
+/* Đoạn mô tả chi tiết */
+.system-intro-desc {
+    font-size: 12px !important;
+    line-height: 1.7 !important;
+    opacity: 0.9 !important;
+}
+
+/* Vùng chứa các thẻ định dạng hỗ trợ */
+.system-badge-wrapper {
+    margin-top: 12px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+}
+
+/* Màu sắc riêng biệt cho từng loại file để dễ nhận diện */
+.badge-pdf { background-color: #e53e3e; }     
+.badge-txt { background-color: #38a169; } 
+.badge-video { background-color: #3182ce; }   
+.badge-audio { background-color: #2080af; }
+
+
+/* ===== Title ===== */
+.title {
+    font-family: 'Playfair Display', Georgia, serif;
+    
+    font-size: 40px;
+    font-weight: 900; /* Ép chữ siêu đậm */
+    letter-spacing: -0.5px; /* Tạo độ khít nhẹ nhìn rất chuyên nghiệp */
+    
+    /* Giữ nguyên cấu trúc màu gradient đổ vào chữ */
+    background: linear-gradient(135deg, #142033 0%, #2e5b9a 60%, #4a90e2 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}

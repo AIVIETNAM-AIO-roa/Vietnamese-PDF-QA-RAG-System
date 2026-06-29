@@ -1,0 +1,14 @@
+# Các file chứa biến môi trường nhạy cảm (Bảo mật)
+.env
+.env.local
+.env.*.local
+
+# Thư mục lưu trữ cơ sở dữ liệu vector ChromaDB cục bộ (nếu có sinh ra)
+chroma_db/
+.chroma/
+
+# File tạm hoặc cấu hình IDE
+.DS_Store
+.vscode/
+__pycache__/
+*.pyc

@@ -1,12 +1,15 @@
 # Giao diện người dùng
 streamlit
 
-# Xử lý Vector Database và LLM
 ollama
 chromadb
 
-#Xử lý đọc file PDF
 pypdf
 
-# Tối ưu hiệu suất cho Streamlit (tuỳ chọn nhưng được khuyến nghị)
 watchdog
+
+dotenv
+
+google-genai
+
+typing-extensions

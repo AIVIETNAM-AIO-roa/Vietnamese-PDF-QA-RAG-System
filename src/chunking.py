@@ -1,4 +1,4 @@
-from src.data import Document, Chunk
+from src.models import Document, Chunk
 from typing import List
 
 class TextChunker():
@@ -20,6 +20,7 @@ class TextChunker():
         return self.chunk_by_fixed_size(document)
 
     def chunk_by_fixed_size(self, document: Document) -> List[Chunk]:
+        """Chia theo số lượng từ cố định"""
         text = document.content
         if text == "":
             return []
@@ -50,6 +51,7 @@ class TextChunker():
         return chunks
 
     def _create_chunk(self, doc_id: str, content: str, start: int, end: int, index: int) -> Chunk:
+        """Hàm tạo Chunk"""
         if content is None:
             raise ValueError("Không có nội dung để tạo chunk")
             
