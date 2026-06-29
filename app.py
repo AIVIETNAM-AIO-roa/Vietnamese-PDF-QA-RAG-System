@@ -12,9 +12,6 @@ from src.loader import DocumentLoader
 from src.chunking import TextChunker         
 from src.embeddings import RAGSystem   
 
-MODEL = "gemini-2.5-flash"
-TOP_K = 3
-
 def _set_page_config():
     st.set_page_config(
         page_title="Notebook",
@@ -61,7 +58,7 @@ def _render_sidebar():
         
         st.markdown("---")
         with st.container(border=True):
-            user_model = st.selectbox("Chọn LLM Model:", options=["gemini-2.5-flash"], index=0, key="llm_model")
+            user_model = st.selectbox("Chọn LLM Model:", options=["vicuna:7b-v1.5-q5_1"], index=0, key="llm_model")
             st.session_state.rag_system.llm_model = user_model
             user_topk = st.slider("Số lượng Context (k):", min_value=1, max_value=10, value=3, key="k_docs",
                                   help="Số lượng đoạn văn bản liên quan nhất được lấy từ ChromaDB để đưa vào Prompt")
@@ -103,7 +100,7 @@ def _render_sidebar():
             f"""
             <div style="font-size: 13px; color: #4a5568; line-height: 1.6;">
                 ● <b>LLM Model:</b> <code style="color: #3182ce;">{st.session_state.rag_system.llm_model}</code><br>
-                ● <b>Embedding Engine:</b> <code style="color: #3182ce;">text-embedding-004 (Cloud)</code><br>
+                ● <b>Embedding Engine:</b> <code style="color: #3182ce;">bge-m3</code><br>
                 ● <b>Vector Database:</b> <code style="color: #3182ce;">ChromaDB (In-Memory)</code><br>
                 ● <b>Top-k result:</b> <code style="color: #3182ce;">{st.session_state.rag_system.top_k}</code><br>
                 ● <b>Trạng thái:</b> <span style="color: {status_color}; font-weight: bold;">● {status_text}</span><br>
@@ -162,6 +159,7 @@ def _homepage():
                 st.write("Chưa tải file/ nội dung.")
         # st.rerun()
         if file_uploaded:
+            file_uploaded.seek(0)
             if st.session_state.pdf_name != file_uploaded.name:
                 st.session_state.rag_system.collection = None
                 st.session_state.pdf_name = file_uploaded.name
